@@ -1062,8 +1062,10 @@ RmSetConsolePreservationParams(OBJGPU *pGpu)
     if ((fbConsoleSize > 0) && (fbBaseAddress != 0))
     {
         KernelBus *pKernelBus = GPU_GET_KERNEL_BUS(pGpu);
-        pKernelBus->bPreserveBar1ConsoleEnabled =
-                          (fbBaseAddress == nv->fb->cpu_address);
+        // P2P FIX: Disable console preservation to allow 512MB-aligned P2P BAR addresses
+        pKernelBus->bPreserveBar1ConsoleEnabled = NV_FALSE;
+        NV_PRINTF(LEVEL_ERROR, "P2P FIX: Disabled bPreserveBar1ConsoleEnabled (was %d)\n",
+                  (fbBaseAddress == nv->fb->cpu_address));
     }
 
     //

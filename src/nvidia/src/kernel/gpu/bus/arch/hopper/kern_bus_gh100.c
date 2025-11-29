@@ -1478,14 +1478,12 @@ _kbusCreateStaticBar1IOMMUMapping
                                  AT_GPU, 0, 0, 1, &peerDmaAddr);
 
     // Check the if it is aligned to max RM_PAGE_SIZE 512M.
+    // P2P FIX: Log warning but don't fail - allow P2P to proceed even with misaligned address
     if (!NV_IS_ALIGNED64(peerDmaAddr, RM_PAGE_SIZE_512M))
     {
-        NV_PRINTF(LEVEL_ERROR, "The peer DMA address 0x%llx is not aligned at 0x%llx\n",
+        NV_PRINTF(LEVEL_WARNING, "P2P FIX: peer DMA address 0x%llx is not aligned at 0x%llx - proceeding anyway\n",
                                peerDmaAddr, RM_PAGE_SIZE_512M);
-
-        memdescUnmapIommu(pPeerDmaMemDesc, pSrcGpu->busInfo.iovaspaceId);
-
-        return NV_ERR_INVALID_ADDRESS;
+        // Don't return error - let P2P proceed
     }
 
     return NV_OK;
