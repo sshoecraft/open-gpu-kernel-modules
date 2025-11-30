@@ -514,6 +514,10 @@ knvlinkStateLoad_IMPL
     // Sense NVLink bridge presence and remove links on missing bridges.
     knvlinkFilterBridgeLinks_HAL(pGpu, pKernelNvlink);
 
+    // P2P FIX: If no physical NVLink bridge detected, disable enabledLinks
+    // to prevent shutdown loops on NVLink-capable GPUs without bridges connected
+    pKernelNvlink->enabledLinks &= pKernelNvlink->bridgedLinks;
+
     // Disconnected links mask tracks links whose remote ends are not discovered
     pKernelNvlink->disconnectedLinkMask = KNVLINK_GET_MASK(pKernelNvlink, enabledLinks, 64);
 
