@@ -1057,10 +1057,13 @@
 //
 #define NV_REG_STR_RM_FORCE_P2P_TYPE                           "RMForceP2PType"
 #define NV_REG_STR_RM_FORCE_P2P_TYPE_DEFAULT                   (0x00000000)
-#define NV_REG_STR_RM_FORCE_P2P_TYPE_PCIEP2P                   (0x00000001)
-#define NV_REG_STR_RM_FORCE_P2P_TYPE_NVLINK                    (0x00000002)
-#define NV_REG_STR_RM_FORCE_P2P_TYPE_C2C                       (0x00000003)
+#define NV_REG_STR_RM_FORCE_P2P_TYPE_MAILBOXP2P                (0x00000001)
+#define NV_REG_STR_RM_FORCE_P2P_TYPE_BAR1P2P                   (0x00000002)
+#define NV_REG_STR_RM_FORCE_P2P_TYPE_NVLINK                    (0x00000003)
+#define NV_REG_STR_RM_FORCE_P2P_TYPE_C2C                       (0x00000004)
 #define NV_REG_STR_RM_FORCE_P2P_TYPE_MAX                       NV_REG_STR_RM_FORCE_P2P_TYPE_C2C
+// Keep old name for compatibility
+#define NV_REG_STR_RM_FORCE_P2P_TYPE_PCIEP2P                   NV_REG_STR_RM_FORCE_P2P_TYPE_MAILBOXP2P
 
 //
 // Type: DWORD

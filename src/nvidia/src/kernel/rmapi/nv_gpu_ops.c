@@ -4007,7 +4007,12 @@ nvGpuOpsBuildExternalAllocPtes
         NvU32 ptePcfHw  = 0;
 
          nvFieldSetBool(&pPteFmt->fldValid, NV_TRUE, pte.v8);
-         gmmuFieldSetAperture(&pPteFmt->fldAperture, aperture, pte.v8);
+         // For BAR1 P2P, use SYS_NONCOH aperture instead of PEER
+         if (aperture == GMMU_APERTURE_PEER) {
+             gmmuFieldSetAperture(&pPteFmt->fldAperture, GMMU_APERTURE_SYS_NONCOH, pte.v8);
+         } else {
+             gmmuFieldSetAperture(&pPteFmt->fldAperture, aperture, pte.v8);
+         }
          nvFieldSet32(&pPteFmt->fldKind, kind, pte.v8);
 
          ptePcfSw |= vol         ? (1 << SW_MMU_PCF_UNCACHED_IDX) : 0;
@@ -4051,7 +4056,12 @@ nvGpuOpsBuildExternalAllocPtes
         if (nvFieldIsValid32(&pPteFmt->fldAtomicDisable.desc))
             nvFieldSetBool(&pPteFmt->fldAtomicDisable, !atomic, pte.v8);
 
-        gmmuFieldSetAperture(&pPteFmt->fldAperture, aperture, pte.v8);
+        // For BAR1 P2P, use SYS_NONCOH aperture instead of PEER
+        if (aperture == GMMU_APERTURE_PEER) {
+            gmmuFieldSetAperture(&pPteFmt->fldAperture, GMMU_APERTURE_SYS_NONCOH, pte.v8);
+        } else {
+            gmmuFieldSetAperture(&pPteFmt->fldAperture, aperture, pte.v8);
+        }
 
         if (!isCompressedKind)
         {
@@ -4062,6 +4072,13 @@ nvGpuOpsBuildExternalAllocPtes
         }
     }
 
+    // For BAR1 P2P, use the BAR1 physical address as fabricBaseAddress
+    if (aperture == GMMU_APERTURE_PEER)
+    {
+        fabricBaseAddress = gpumgrGetGpuPhysFbAddr(pMemDesc->pGpu);
+    }
+
+    /* Commented out for BAR1 P2P - use system memory aperture instead of peer aperture
     if (aperture == GMMU_APERTURE_PEER)
     {
         FlaMemory* pFlaMemory = dynamicCast(pMemory, FlaMemory);
@@ -4087,7 +4104,8 @@ nvGpuOpsBuildExternalAllocPtes
             KernelNvlink *pKernelNvlink = GPU_GET_KERNEL_NVLINK(pMemDesc->pGpu);
             if (pKernelNvlink == NULL)
             {
-                fabricBaseAddress = NVLINK_INVALID_FABRIC_ADDR;
+                // For PCIe BAR1 P2P, use the BAR1 physical address
+                fabricBaseAddress = gpumgrGetGpuPhysFbAddr(pMemDesc->pGpu);
             }
             else
             {
@@ -4102,6 +4120,7 @@ nvGpuOpsBuildExternalAllocPtes
             }
         }
     }
+    */
 
     //
     // Both memdescGetPhysAddr() and kgmmuEncodePhysAddr() have pretty high overhead.
@@ -4376,7 +4395,13 @@ nvGpuOpsBuildExternalAllocPhysAddrs
     if (!physAddrCount)
         return NV_ERR_BUFFER_TOO_SMALL;
 
+    // For BAR1 P2P, use the BAR1 physical address as fabricBaseAddress
+    if (aperture == GMMU_APERTURE_PEER)
+    {
+        fabricBaseAddress = gpumgrGetGpuPhysFbAddr(pMemDesc->pGpu);
+    }
 
+    /* Commented out for BAR1 P2P - use system memory aperture instead of peer aperture
     if (aperture == GMMU_APERTURE_PEER)
     {
         FlaMemory* pFlaMemory = dynamicCast(pMemory, FlaMemory);
@@ -4401,7 +4426,8 @@ nvGpuOpsBuildExternalAllocPhysAddrs
             KernelNvlink *pKernelNvlink = GPU_GET_KERNEL_NVLINK(pMemDesc->pGpu);
             if (pKernelNvlink == NULL)
             {
-                fabricBaseAddress = NVLINK_INVALID_FABRIC_ADDR;
+                // For PCIe BAR1 P2P, use the BAR1 physical address
+                fabricBaseAddress = gpumgrGetGpuPhysFbAddr(pMemDesc->pGpu);
             }
             else
             {
@@ -4416,6 +4442,7 @@ nvGpuOpsBuildExternalAllocPhysAddrs
             }
         }
     }
+    */
 
     //
     // Both memdescGetPhysAddr() and kgmmuEncodePhysAddr() have pretty high overhead.

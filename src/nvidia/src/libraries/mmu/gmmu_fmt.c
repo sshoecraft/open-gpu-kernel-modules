@@ -124,9 +124,9 @@ gmmuFmtPtePhysAddrFld
     {
         case GMMU_APERTURE_SYS_COH:
         case GMMU_APERTURE_SYS_NONCOH:
-            return &pPte->fldAddrSysmem;
         case GMMU_APERTURE_PEER:
-            return &pPte->fldAddrPeer;
+            // Use sysmem field for peer to enable BAR1 P2P
+            return &pPte->fldAddrSysmem;
         case GMMU_APERTURE_VIDEO:
             return &pPte->fldAddrVidmem;
         default:

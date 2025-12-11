@@ -762,15 +762,16 @@ _kbifInitRegistryOverrides
         pKernelBif->setProperty(pKernelBif, PDB_PROP_KBIF_P2P_WRITES_DISABLED, FLD_TEST_DRF(_REG_STR, _CL_FORCE_P2P, _WRITE, _DISABLE, data32));
     }
 
-    // P2P force type override - use PCIe P2P
-    pKernelBif->forceP2PType = NV_REG_STR_RM_FORCE_P2P_TYPE_PCIEP2P;
+    // P2P force type override - use BAR1 P2P for direct memory access
+    pKernelBif->forceP2PType = NV_REG_STR_RM_FORCE_P2P_TYPE_BAR1P2P;
     if (osReadRegistryDword(pGpu, NV_REG_STR_RM_FORCE_P2P_TYPE, &data32) == NV_OK &&
         (data32 <= NV_REG_STR_RM_FORCE_P2P_TYPE_MAX))
     {
         pKernelBif->forceP2PType = data32;
     }
 
-    pKernelBif->pcieP2PType = NV_REG_STR_RM_PCIEP2P_TYPE_DEFAULT;
+    // Use BAR1 P2P for proper direct memory access
+    pKernelBif->pcieP2PType = NV_REG_STR_RM_PCIEP2P_TYPE_BAR1;
     if (osReadRegistryDword(pGpu, NV_REG_STR_RM_PCIEP2P_TYPE, &data32) == NV_OK)
     {
         pKernelBif->pcieP2PType = data32;
