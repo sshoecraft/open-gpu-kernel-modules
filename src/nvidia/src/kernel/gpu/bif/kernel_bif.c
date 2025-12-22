@@ -453,14 +453,12 @@ kbifInitPcieDeviceControlStatus_IMPL
     // the upstream root port is known to be broken with respect to this
     // feature.
     //
-    if (!pCl->getProperty(pCl, PDB_PROP_CL_RELAXED_ORDERING_NOT_CAPABLE))
-    {
-        kbifPcieConfigEnableRelaxedOrdering_HAL(pGpu, pKernelBif);
-    }
-    else
-    {
-        kbifPcieConfigDisableRelaxedOrdering_HAL(pGpu, pKernelBif);
-    }
+    // TINYGRAD P2P PATCH: Unconditionally enable relaxed ordering for
+    // dual-socket systems. Without this, cross-socket P2P via sysmem
+    // aperture stalls on QPI strict ordering, causing 0.31 GB/s throughput
+    // and vLLM crashes. With RO enabled, cross-socket achieves 7.6 GB/s.
+    //
+    kbifPcieConfigEnableRelaxedOrdering_HAL(pGpu, pKernelBif);
 
     //
     // WAR for bug 3661529. All GH100 SKUs will need the NoSnoop WAR.

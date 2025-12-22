@@ -3878,47 +3878,6 @@ nvGpuOpsBuildExternalAllocPtes
         fabricBaseAddress = bar1BusAddr;
     }
 
-    /*if (aperture == GMMU_APERTURE_PEER)
-    {
-        FlaMemory* pFlaMemory = dynamicCast(pMemory, FlaMemory);
-        nvFieldSet32(&pPteFmt->fldPeerIndex, peerId, pte.v8);
-
-        //
-        // Any fabric memory descriptors are pre-encoded with the fabric base address
-        // use NVLINK_INVALID_FABRIC_ADDR to avoid encoding twice
-        //
-        // Skip fabric base address for Local EGM as it uses peer aperture but
-        // doesn't require fabric address
-        //
-        if (
-            (memdescGetAddressSpace(pMemDesc) == ADDR_FABRIC_MC) ||
-            (memdescGetAddressSpace(pMemDesc) == ADDR_FABRIC_V2) ||
-            (pFlaMemory != NULL) ||
-            (memdescIsEgm(pMemDesc) && (pMappingGpu == pMemDesc->pGpu)))
-        {
-            fabricBaseAddress = NVLINK_INVALID_FABRIC_ADDR;
-        }
-        else
-        {
-            KernelNvlink *pKernelNvlink = GPU_GET_KERNEL_NVLINK(pMemDesc->pGpu);
-            if (pKernelNvlink == NULL)
-            {
-                fabricBaseAddress = NVLINK_INVALID_FABRIC_ADDR;
-            }
-            else
-            {
-                if (memdescIsEgm(pMemDesc))
-                {
-                    fabricBaseAddress = knvlinkGetUniqueFabricEgmBaseAddress(pMemDesc->pGpu, pKernelNvlink);
-                }
-                else
-                {
-                    fabricBaseAddress = knvlinkGetUniqueFabricBaseAddress(pMemDesc->pGpu, pKernelNvlink);
-                }
-            }
-        }
-    }*/
-
     //
     // Both memdescGetPhysAddr() and kgmmuEncodePhysAddr() have pretty high overhead.
     // To avoid it, allocate an array for the physical addresses and use the
@@ -4152,46 +4111,6 @@ nvGpuOpsBuildExternalAllocPhysAddrs
     if (aperture == GMMU_APERTURE_PEER) {
         fabricBaseAddress = bar1BusAddr;
     }
-
-    /*if (aperture == GMMU_APERTURE_PEER)
-    {
-        FlaMemory* pFlaMemory = dynamicCast(pMemory, FlaMemory);
-
-        //
-        // Any fabric memory descriptors are pre-encoded with the fabric base address
-        // use NVLINK_INVALID_FABRIC_ADDR to avoid encoding twice
-        //
-        // Skip fabric base address for Local EGM as it uses peer aperture but
-        // doesn't require fabric address
-        //
-        if (
-            (memdescGetAddressSpace(pMemDesc) == ADDR_FABRIC_MC) ||
-            (memdescGetAddressSpace(pMemDesc) == ADDR_FABRIC_V2) ||
-            (pFlaMemory != NULL) ||
-            (memdescIsEgm(pMemDesc) && (pMappingGpu == pMemDesc->pGpu)))
-        {
-            fabricBaseAddress = NVLINK_INVALID_FABRIC_ADDR;
-        }
-        else
-        {
-            KernelNvlink *pKernelNvlink = GPU_GET_KERNEL_NVLINK(pMemDesc->pGpu);
-            if (pKernelNvlink == NULL)
-            {
-                fabricBaseAddress = NVLINK_INVALID_FABRIC_ADDR;
-            }
-            else
-            {
-                if (memdescIsEgm(pMemDesc))
-                {
-                    fabricBaseAddress = knvlinkGetUniqueFabricEgmBaseAddress(pMemDesc->pGpu, pKernelNvlink);
-                }
-                else
-                {
-                    fabricBaseAddress = knvlinkGetUniqueFabricBaseAddress(pMemDesc->pGpu, pKernelNvlink);
-                }
-            }
-        }
-    }*/
 
     //
     // Both memdescGetPhysAddr() and kgmmuEncodePhysAddr() have pretty high overhead.
