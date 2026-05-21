@@ -1168,6 +1168,12 @@ RmSetConsolePreservationParams(OBJGPU *pGpu)
         return;
     }
 
+    // P2P FIX: Unconditionally disable console preservation for P2P support
+    if (pKernelBus != NULL)
+    {
+        pKernelBus->bPreserveBar1ConsoleEnabled = NV_FALSE;
+    }
+
     //
     // Check the OS layer for any video memory used by a console
     // driver that should be reserved.
@@ -1191,8 +1197,8 @@ RmSetConsolePreservationParams(OBJGPU *pGpu)
 
     if ((fbConsoleSize > 0) && (fbBaseAddress != 0) && (pKernelBus != NULL))
     {
-        pKernelBus->bPreserveBar1ConsoleEnabled =
-                          (fbBaseAddress == nv->fb->cpu_address);
+        // PATCHED: Disable console preservation to allow 512MB-aligned P2P BAR addresses
+        pKernelBus->bPreserveBar1ConsoleEnabled = NV_FALSE;
     }
 
     //
@@ -1203,6 +1209,11 @@ RmSetConsolePreservationParams(OBJGPU *pGpu)
     if ((fbConsoleSize == 0) && nv->primary_vga)
     {
         fbConsoleSize = 0x40000;
+        // P2P FIX: Also disable console preservation for legacy VGA console
+        if (pKernelBus != NULL)
+        {
+            pKernelBus->bPreserveBar1ConsoleEnabled = NV_FALSE;
+        }
     }
 
     if (pGpu->getProperty(pGpu, PDB_PROP_GPU_TEGRA_SOC_NVDISPLAY))

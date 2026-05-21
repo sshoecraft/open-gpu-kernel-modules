@@ -857,14 +857,12 @@ kbifInitPcieDeviceControlStatus_IMPL
     // the upstream root port is known to be broken with respect to this
     // feature.
     //
-    if (!pCl->getProperty(pCl, PDB_PROP_CL_RELAXED_ORDERING_NOT_CAPABLE))
-    {
-        kbifPcieConfigEnableRelaxedOrdering_HAL(pGpu, pKernelBif);
-    }
-    else
-    {
-        kbifPcieConfigDisableRelaxedOrdering_HAL(pGpu, pKernelBif);
-    }
+    // TINYGRAD P2P PATCH: Unconditionally enable relaxed ordering for
+    // dual-socket systems. Without this, cross-socket P2P via sysmem
+    // aperture stalls on QPI strict ordering, causing 0.31 GB/s throughput
+    // and vLLM crashes. With RO enabled, cross-socket achieves 7.6 GB/s.
+    //
+    kbifPcieConfigEnableRelaxedOrdering_HAL(pGpu, pKernelBif);
 
     //
     // WAR for bug 3661529. All GH100 SKUs will need the NoSnoop WAR.
@@ -1159,7 +1157,7 @@ _kbifInitRegistryOverrides
     NvU32 data32;
 
     // P2P Override
-    pKernelBif->p2pOverride = BIF_P2P_NOT_OVERRIDEN;
+    pKernelBif->p2pOverride = 0x11;
     if (osReadRegistryDword(pGpu, NV_REG_STR_CL_FORCE_P2P, &data32) == NV_OK)
     {
         pKernelBif->p2pOverride = data32;
@@ -1168,7 +1166,10 @@ _kbifInitRegistryOverrides
     }
 
     // P2P force type override
-    pKernelBif->forceP2PType = NV_REG_STR_RM_FORCE_P2P_TYPE_DEFAULT;
+    // 595 NOTE: 570's BAR1P2P constant was merged into PCIEP2P; the BAR1-vs-mailbox
+    // decision now happens via the _CONNECTION_TYPE, _PCIE_BAR1 attribute on the
+    // P2P API (see kbusCreateP2PMappingForBar1P2P_HAL dispatch in gp100.c).
+    pKernelBif->forceP2PType = NV_REG_STR_RM_FORCE_P2P_TYPE_PCIEP2P;
     if (osReadRegistryDword(pGpu, NV_REG_STR_RM_FORCE_P2P_TYPE, &data32) == NV_OK &&
         (data32 <= NV_REG_STR_RM_FORCE_P2P_TYPE_MAX))
     {
